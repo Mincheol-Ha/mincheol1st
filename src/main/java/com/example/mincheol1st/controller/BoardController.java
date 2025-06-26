@@ -1,5 +1,6 @@
 package com.example.mincheol1st.controller;
 
+import com.example.mincheol1st.ApiResponse;
 import com.example.mincheol1st.service.CommentService;
 import com.example.mincheol1st.service.LikeService;
 import com.example.mincheol1st.service.PostService;
@@ -28,78 +29,83 @@ public class BoardController {
     private final LikeService likeService;
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody SignupRequestDto signupRequestDto) {
+    public ResponseEntity<ApiResponse<String>> signup(@RequestBody SignupRequestDto signupRequestDto) {
         userService.signup(signupRequestDto);
-        return ResponseEntity.ok("회원가입 완료");
+        return ResponseEntity.ok(ApiResponse.success("회원가입 완료", "회원가입 완료"));
     }
 
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequestDto loginRequestDto) {
+    public ResponseEntity<ApiResponse<String>> login(@RequestBody LoginRequestDto loginRequestDto) {
         userService.login(loginRequestDto.getEmail(), loginRequestDto.getPassword());
-        return ResponseEntity.ok("로그인 성공");
+        return ResponseEntity.ok(ApiResponse.success("로그인 성공", "로그인 완료"));
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logout() {
+    public ResponseEntity<ApiResponse<String>> logout() {
         // 프론트가 토큰을 삭제하면 됨 (서버는 인증 처리 없이 단순 응답)
-        return ResponseEntity.ok("로그아웃 되었습니다.");
+        return ResponseEntity.ok(ApiResponse.success("로그아웃", "로그아웃 완료"));
     }
 
     @PostMapping("/posts")
-    public ResponseEntity<String> posts(@RequestBody PostRequestDto postRequestDto) {
-    postService.createPost(postRequestDto);
-    return ResponseEntity.ok("게시글이 작성되었습니다.");
+    public ResponseEntity<ApiResponse<String>> posts(@RequestBody PostRequestDto postRequestDto) {
+     postService.createPost(postRequestDto);
+     return ResponseEntity.ok(ApiResponse.success("게시글 작성", "게시글이 작성되었습니다."));
     }
 
     @PutMapping("/posts/{postId}")
-    public ResponseEntity<String> updatePost(@PathVariable("postId") int postId, @RequestBody PostRequestDto postRequestDto) {
+    public ResponseEntity<ApiResponse<String>> updatePost(@PathVariable("postId") int postId, @RequestBody PostRequestDto postRequestDto) {
         postService.updatePost(postId, postRequestDto);
-        return   ResponseEntity.ok("글 수정 완료.");
+        return ResponseEntity.ok(ApiResponse.success("게시글 수정", "게시글이 수정되었습니다."));
+
     }
 
     @DeleteMapping("/posts/{postId}")
-    public ResponseEntity<String> deletePost(@PathVariable("postId") int postId) {
+    public ResponseEntity<ApiResponse<String>> deletePost(@PathVariable("postId") int postId) {
         postService.deletePost(postId);
-        return   ResponseEntity.ok("삭제 되었습니다.");
+        return ResponseEntity.ok(ApiResponse.success("게시글 삭제", "게시글이 삭제되었습니다."));
+
     }
 
     @PostMapping("/comments")
-    public ResponseEntity<String > creatComment(@RequestBody CommentRequestDto  commentRequestDto) {
+    public ResponseEntity<ApiResponse<String>> creatComment(@RequestBody CommentRequestDto  commentRequestDto) {
         commentService.createComment(commentRequestDto);
-        return  ResponseEntity.ok("댓글 등록완료.");
+        return ResponseEntity.ok(ApiResponse.success("댓글 등록 완료", "댓글 등록 완료되었습니다."));
+
     }
 
     @PutMapping("/comments/{id}")
-    public ResponseEntity<String> update(@PathVariable Integer id, @RequestBody CommentRequestDto commentRequestDto) {
+    public ResponseEntity<ApiResponse<String>> update(@PathVariable Integer id, @RequestBody CommentRequestDto commentRequestDto) {
         commentService.updateComment(id, commentRequestDto);
-        return ResponseEntity.ok("댓글 수정 완료");
+        return ResponseEntity.ok(ApiResponse.success("댓글 수정 완료", "댓글 수정 완료되었습니다."));
     }
 
     @DeleteMapping("/comments/{id}")
-    public ResponseEntity<String> delete(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse<String>> delete(@PathVariable Integer id) {
         commentService.deleteComment(id);
-        return ResponseEntity.ok("댓글 삭제 완료");
+        return ResponseEntity.ok(ApiResponse.success("댓글 삭제 완료", "댓글 삭제 완료되었습니다."));
     }
 
     @GetMapping("/comments/{id}")
-    public ResponseEntity<List<CommentResponseDto>> getComments(@PathVariable Integer id) {
-     List<CommentResponseDto> comments = commentService.findByPostId(id);
-        log.info("댓글 ID:" + id + " 조회 요청");
-        return ResponseEntity.ok(comments);
+    public ResponseEntity<ApiResponse<List<CommentResponseDto>>> getComments(@PathVariable Integer id) {
+        List<CommentResponseDto> comments = commentService.findByPostId(id);
+        log.info("댓글 ID: {} 조회 요청", id);
+
+        return ResponseEntity.ok(ApiResponse.success(comments, "댓글 조회 성공"));
     }
 
     @PostMapping("/posts/{postId}/like")
-    public ResponseEntity<String> createLike(@PathVariable Integer postId, @RequestBody String email) {
+    public ResponseEntity<ApiResponse<String>> createLike(@PathVariable Integer postId, @RequestBody String email) {
         likeService.createLike(postId, email);
         log.info("좋아요 요청 이메일: {}", email);
-        return ResponseEntity.ok("좋아요가 등록되었습니다.👍");
+        return ResponseEntity.ok(ApiResponse.success("좋아요 등록 완료", "좋아요 등록 완료되었습니다."));
     }
 
     @DeleteMapping("/posts/{postId}/like")
-    public ResponseEntity<String> deleteLike(@PathVariable Integer postId, @RequestBody String email) {
+    public ResponseEntity<ApiResponse<String>> deleteLike(@PathVariable Integer postId, @RequestBody String email) {
         likeService.deleteLike(postId, email);
         log.info("좋아요 취소요청 이메일: {}", email);
-        return ResponseEntity.ok("좋아요가 취소되었습니다.❌");
+        return ResponseEntity.ok(ApiResponse.success("좋아요 취소 완료", "좋아요 취소 완료되었습니다."));
+
     }
 }
